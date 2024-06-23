@@ -17,7 +17,7 @@ async function createUser(userId, role, name) {
   const newUser = {
     id: userId,
     role: role || "user",
-    name: name || "John Doe",
+    name: name || "Guest",
   };
   await client.upsertUsers({
     users: {
@@ -29,12 +29,11 @@ async function createUser(userId, role, name) {
   return client.createToken(userId, exp);
 }
 
-app.get("/", (req, res) => {
-  res.json({ message: "Hello World" });
-});
-
 app.post("/createUser", async (req, res) => {
   const { userId, role, name } = req.body;
+  if (!userId) {
+    return res.status(400).json({ error: "userId is required" });
+  }
   try {
     const token = await createUser(userId, role, name);
     res.json({ token });
